@@ -320,7 +320,22 @@ cp -r skills/* ~/.claude/skills/
 claude
 ```
 
-搞定。所有 `/idea-discovery`、`/auto-review-loop`、`/research-pipeline` 命令照常使用——GLM 执行，MiniMax 审稿。
+### 第 4 步：让 GLM 读一遍项目 ⚠️ 重要
+
+> **🔴 不要跳过这一步。** GLM 的 prompt 处理方式与 Claude 不同，必须让 GLM 先读一遍项目，确保 skill 文件能正确解析。
+
+启动 `claude` 后，在对话中输入：
+
+```
+读一下这个项目，验证所有 skills 是否正常：
+/idea-creator, /research-review, /auto-review-loop, /novelty-check,
+/idea-discovery, /research-pipeline, /research-lit, /run-experiment,
+/analyze-results, /monitor-experiment, /pixel-art
+
+逐个确认：(1) 能正常加载 (2) frontmatter 解析正确
+```
+
+这让 GLM（作为 Claude Code 执行者）先熟悉 skill 文件并提前发现兼容性问题——而不是在跑到一半时才报错。
 
 > ⚠️ **注意：** GLM 和 MiniMax 的行为可能与 Claude 和 GPT-5.4 有所不同。你可能需要调整 skill 中的 `REVIEWER_MODEL` 并微调 prompt 模板以获得最佳效果。核心的跨模型架构不变。
 

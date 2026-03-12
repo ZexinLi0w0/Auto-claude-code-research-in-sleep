@@ -373,7 +373,22 @@ cp -r skills/* ~/.claude/skills/
 claude
 ```
 
-That's it. All `/idea-discovery`, `/auto-review-loop`, `/research-pipeline` commands work the same way — GLM executes, MiniMax reviews.
+### Step 4: Let GLM Read the Project ⚠️ IMPORTANT
+
+> **🔴 Do NOT skip this step.** GLM's prompt handling differs from Claude's. You must let GLM read through the project once to ensure skills are correctly parsed.
+
+After launching `claude`, run in the conversation:
+
+```
+Read through this project and verify all skills are working:
+/idea-creator, /research-review, /auto-review-loop, /novelty-check,
+/idea-discovery, /research-pipeline, /research-lit, /run-experiment,
+/analyze-results, /monitor-experiment, /pixel-art
+
+For each skill, confirm: (1) it loads without errors, (2) the frontmatter is parsed correctly.
+```
+
+This lets GLM (acting as Claude Code) familiarize itself with the skill files and catch any compatibility issues upfront — rather than discovering them mid-workflow when it's expensive to fail.
 
 > ⚠️ **Note:** GLM and MiniMax may behave differently from Claude and GPT-5.4. You may need to adjust `REVIEWER_MODEL` in the skills and tune prompt templates for best results. The core cross-model architecture remains the same.
 
