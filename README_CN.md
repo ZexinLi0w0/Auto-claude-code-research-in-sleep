@@ -44,10 +44,10 @@ claude
 ## ✨ 功能亮点
 
 - 📊 **17 个可组合 skill** — 自由混搭，或串联为完整流水线（`/idea-discovery`、`/auto-review-loop`、`/paper-writing`、`/research-pipeline`）
-- 🔄 **自动 review 循环** — 4 轮自主审稿，一夜从 5/10 提升到 7.5/10，自动跑 20+ 组 GPU 实验
-- 💡 **Idea 发现** — 文献调研 → 头脑风暴 8-12 个 idea → 查新 → GPU pilot 实验 → 排名报告
-- 📝 **论文写作** — 研究叙事 → 大纲 → 图表 → LaTeX → PDF → 自动审稿（4/10 → 8.5/10），一条命令
 - 🔍 **文献 & 查新** — 多源论文搜索（**Zotero** + **Obsidian** + **本地 PDF** + arXiv/Scholar）+ 跨模型查新验证
+- 💡 **Idea 发现** — 文献调研 → 头脑风暴 8-12 个 idea → 查新 → GPU pilot 实验 → 排名报告
+- 🔄 **自动 review 循环** — 4 轮自主审稿，一夜从 5/10 提升到 7.5/10，自动跑 20+ 组 GPU 实验
+- 📝 **论文写作** — 研究叙事 → 大纲 → 图表 → LaTeX → PDF → 自动审稿（4/10 → 8.5/10），一条命令
 - 🤖 **跨模型协作** — Claude Code 执行，GPT-5.4 xhigh 审稿。对抗式而非自我博弈
 - 📝 **Peer Review** — 以审稿人视角审阅他人论文，结构化打分 + meta-review
 - 🖥️ **GPU 部署** — 自动 rsync、screen 会话、多 GPU 并行实验、实时监控
