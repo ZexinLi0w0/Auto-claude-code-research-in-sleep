@@ -434,10 +434,15 @@ This lets GLM (acting as Claude Code) familiarize itself with the skill files an
   - **Off** (default) — no Feishu, pure CLI as-is
   - **Push only** — lightweight webhook notifications at key events (experiment done, review scored, checkpoint waiting). No extra process needed, just `curl` from within skills. Mobile push, no reply
   - **Interactive** — full bidirectional via [feishu-claude-code](https://github.com/joewongjc/feishu-claude-code). Approve/reject ideas, reply to checkpoints from Feishu. Requires `python main.py` running alongside Claude Code (both can run on a remote server via `screen`)
+  - Related projects: [clawdbot-feishu](https://github.com/m1heng/clawdbot-feishu) (3.7k⭐), [cc-connect](https://github.com/chenhg5/cc-connect) (multi-platform bridge), [lark-openapi-mcp](https://github.com/larksuite/lark-openapi-mcp) (official, 424⭐)
 - [ ] **LaTeX paper writing skill** — draft, edit, and iterate on LaTeX papers from review feedback. Section-by-section generation, figure/table placement, bibliography management
+  - Related projects: [AI-Research-SKILLs](https://github.com/Orchestra-Research/AI-Research-SKILLs) (4k⭐, ML paper writing with conference templates), [awesome-claudecode-paper-proofreading](https://github.com/LimHyungTae/awesome-claudecode-paper-proofreading) (ICRA/CVPR-level proofreading), [arxiv-latex-mcp](https://github.com/takashiishida/arxiv-latex-mcp) (100⭐, read arXiv LaTeX source)
 - [ ] **LaTeX editor integration** — real-time Overleaf or local TeX sync, compile preview, diff-aware edits (only rewrite changed sections)
+  - Related projects: [overleafMCP-rw](https://github.com/hiufungleung/overleafMCP-rw) (Overleaf read/write via Git), [mcp-pandoc](https://github.com/vivekVells/mcp-pandoc) (500⭐, Markdown/LaTeX/PDF conversion)
 - [ ] **Figure generation skill** — publication-quality plots from experiment results. Call matplotlib/seaborn or AI diagram tools (e.g., Napkin AI) for architecture figures, auto-insert into LaTeX
+  - Related projects: [claude-scientific-skills](https://github.com/K-Dense-AI/claude-scientific-skills) (4.6k⭐, Publication Figures skill), [mcp-server-chart](https://github.com/antvis/mcp-server-chart) (3.1k⭐, AntV official), [matplotlib_mcp](https://github.com/newsbubbles/matplotlib_mcp) (full matplotlib API via MCP)
 - [ ] **Zotero MCP integration** — read papers, tags, and annotations directly from Zotero library
+  - Related projects: [zotero-mcp](https://github.com/54yyyu/zotero-mcp) (1.8k⭐, semantic search), [arxiv-mcp-server](https://github.com/blazickjp/arxiv-mcp-server) (2.3k⭐, arXiv search), [paper-search-mcp](https://github.com/openags/paper-search-mcp) (782⭐, multi-source academic search)
 - [ ] More executor × reviewer combinations (Gemini, DeepSeek, etc.)
 
 ## 💬 Community

@@ -381,10 +381,15 @@ claude
   - **关闭**（默认）— 不接飞书，纯 CLI 不变
   - **仅推送** — 关键节点（实验完成、review 出分、checkpoint 等待）发飞书 webhook 通知。无需额外进程，skill 里 `curl` 一下就行。手机收推送，不能回复
   - **双向交互** — 通过 [feishu-claude-code](https://github.com/joewongjc/feishu-claude-code) 全双工桥接。在飞书里审批/拒绝 idea、回复 checkpoint。需要 `python main.py` 和 Claude Code 同时运行（可都丢服务器 `screen` 里常驻）
+  - 相关项目：[clawdbot-feishu](https://github.com/m1heng/clawdbot-feishu)（3.7k⭐）、[cc-connect](https://github.com/chenhg5/cc-connect)（多平台桥接）、[lark-openapi-mcp](https://github.com/larksuite/lark-openapi-mcp)（官方，424⭐）
 - [ ] **LaTeX 论文写作 skill** — 根据 review 反馈起草、编辑、迭代 LaTeX 论文。逐 section 生成、图表排版、参考文献管理
+  - 相关项目：[AI-Research-SKILLs](https://github.com/Orchestra-Research/AI-Research-SKILLs)（4k⭐，含会议 LaTeX 模板）、[awesome-claudecode-paper-proofreading](https://github.com/LimHyungTae/awesome-claudecode-paper-proofreading)（ICRA/CVPR 级校对）、[arxiv-latex-mcp](https://github.com/takashiishida/arxiv-latex-mcp)（100⭐，读 arXiv LaTeX 源码）
 - [ ] **LaTeX 编辑器集成** — Overleaf 或本地 TeX 实时同步、编译预览、diff 感知编辑（只重写改动部分）
+  - 相关项目：[overleafMCP-rw](https://github.com/hiufungleung/overleafMCP-rw)（Overleaf 读写 via Git）、[mcp-pandoc](https://github.com/vivekVells/mcp-pandoc)（500⭐，Markdown/LaTeX/PDF 互转）
 - [ ] **作图 skill** — 从实验结果生成论文级图表。调用 matplotlib/seaborn 或 AI 作图工具（如 Napkin AI）生成架构图，自动插入 LaTeX
+  - 相关项目：[claude-scientific-skills](https://github.com/K-Dense-AI/claude-scientific-skills)（4.6k⭐，Publication Figures skill）、[mcp-server-chart](https://github.com/antvis/mcp-server-chart)（3.1k⭐，AntV 官方）、[matplotlib_mcp](https://github.com/newsbubbles/matplotlib_mcp)（完整 matplotlib MCP）
 - [ ] **Zotero MCP 集成** — 直接读取 Zotero 论文库的论文、标签和批注
+  - 相关项目：[zotero-mcp](https://github.com/54yyyu/zotero-mcp)（1.8k⭐，语义搜索）、[arxiv-mcp-server](https://github.com/blazickjp/arxiv-mcp-server)（2.3k⭐，arXiv 搜索）、[paper-search-mcp](https://github.com/openags/paper-search-mcp)（782⭐，多源学术搜索）
 - [ ] 更多执行者 × 评审者组合（Gemini、DeepSeek 等）
 
 ## 💬 交流群
