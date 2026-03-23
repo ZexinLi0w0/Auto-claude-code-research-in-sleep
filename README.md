@@ -1344,6 +1344,7 @@ ARIS wouldn't run on so many platforms without these contributors:
 - 🔧 [@No-518](https://github.com/No-518) — ongoing maintenance of the Codex skill set, keeping parity with latest updates
 - 🖱️ [@YecanLee](https://github.com/YecanLee) — wrote the [Cursor adaptation guide](docs/CURSOR_ADAPTATION.md) and local GPU setup docs
 - 🏆 [@DefanXue](https://github.com/DefanXue) & [@Monglitay](https://github.com/Monglitay) — first community paper built entirely with ARIS, scored 8/10 at CS conference
+- 💡 [@JingxuanKang](https://github.com/JingxuanKang) — not just skills (training-check, result-to-claim, ablation-planner, watchdog, templates, session recovery) but invaluable discussions on ARIS architecture, compact mode design, and the vision of what autonomous research workflows should look like
 
 ## License
 
