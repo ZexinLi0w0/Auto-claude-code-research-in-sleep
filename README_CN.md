@@ -162,12 +162,14 @@ claude
 > | `base repo` | `false` | GitHub 仓库 URL，克隆作为实验基础代码（如 `— base repo: https://github.com/org/project`）。没有代码？基于开源项目开发 |
 > | `compact` | `false` | 生成精简摘要文件（`IDEA_CANDIDATES.md`、`findings.md`、`EXPERIMENT_LOG.md`），适合短 context 模型和 session 恢复 |
 > | `ref paper` | `false` | 参考论文（PDF 路径或 arXiv URL）。先总结论文，再基于它找 idea。配合 `base repo` 实现"论文+代码"工作流 |
+> | `difficulty` | `medium` | 审稿对抗强度：`medium`（默认）、`hard`（+ memory + 辩论）、`nightmare`（+ GPT 通过 `codex exec` 直读仓库） |
 >
 > ```
 > /research-pipeline "你的课题" — AUTO_PROCEED: false                          # 在 idea 选择关卡暂停
 > /research-pipeline "你的课题" — human checkpoint: true                       # 每轮 review 后暂停，可给修改意见
 > /research-pipeline "你的课题" — sources: zotero, web                         # 只搜 Zotero + 网络（跳过本地 PDF）
 > /research-pipeline "你的课题" — arxiv download: true                         # 文献调研时下载最相关的 arXiv PDF
+> /research-pipeline "你的课题" — difficulty: nightmare                        # 投顶会前极限压测
 > /research-pipeline "你的课题" — AUTO_PROCEED: false, human checkpoint: true  # 组合使用
 > ```
 

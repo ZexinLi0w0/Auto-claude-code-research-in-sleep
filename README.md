@@ -178,12 +178,14 @@ claude
 > | `gpu` | `local` | GPU target: `local` (default), `remote` (SSH server), or `vast` (rent on-demand from [Vast.ai](https://vast.ai) — auto-provision, auto-destroy) |
 > | `compact` | `false` | Generate compact summary files (`IDEA_CANDIDATES.md`, `findings.md`, `EXPERIMENT_LOG.md`) for short-context models and session recovery |
 > | `ref paper` | `false` | Reference paper to build on (PDF path or arXiv URL). Summarized first, then ideas extend/improve it. Combine with `base repo` for paper+code workflows |
+> | `difficulty` | `medium` | Reviewer adversarial level: `medium` (default), `hard` (+ memory + debate), `nightmare` (+ GPT reads repo via `codex exec`) |
 >
 > ```
 > /research-pipeline "your topic" — AUTO_PROCEED: false                          # pause at idea selection gate
 > /research-pipeline "your topic" — human checkpoint: true                       # pause after each review round to give feedback
 > /research-pipeline "your topic" — sources: zotero, web                         # only search Zotero + web (skip local PDFs)
 > /research-pipeline "your topic" — arxiv download: true                         # download top arXiv PDFs during literature survey
+> /research-pipeline "your topic" — difficulty: nightmare                        # maximum adversarial review before submission
 > /research-pipeline "your topic" — AUTO_PROCEED: false, human checkpoint: true  # combine options
 > ```
 
