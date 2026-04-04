@@ -4,9 +4,11 @@
 
 🔥 [**ARIS-Code CLI — 独立安装版**](docs/ARIS-Code-README_CN.md) · [English](docs/ARIS-Code-README_EN.md) | [⬇️ Download](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/releases/latest)
 
-> 📰 **ARIS-Code v0.3.0** (2026-04-03) — Multi-file memory index (selective recall) | Rich task system (TodoWrite) | `/plan` research planning | Security hardening
+> 📰 **ARIS-Code v0.3.1** (2026-04-04) — Fix StructuredOutput schema for OpenAI/Kimi executor compatibility
 >
 > <details><summary>Previous versions</summary>
+>
+> **v0.3.0** (2026-04-03) — Multi-file memory index | Rich task system (TodoWrite) | `/plan` | Security hardening
 >
 > **v0.2.2** (2026-04-03) — `/plan` step-by-step planning | `/tasks` persistent tracking
 >
