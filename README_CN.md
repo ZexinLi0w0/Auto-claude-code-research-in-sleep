@@ -155,7 +155,7 @@ claude
 > # 然后启动 Claude Code — hooks 立即生效
 > claude
 > ```
-> 累积 5 次以上工作流运行后，运行 `/meta-optimize` 查看基于数据的技能改进建议。详见[工作流 M](#工作流-mmeta-optimize-aris-优化自己)。
+> 事件同时记录到**项目级**（`.aris/meta/events.jsonl`）和**全局**（`~/.aris/meta/events.jsonl`）日志。累积 5 次以上工作流运行后，运行 `/meta-optimize` 查看改进建议。使用 `/meta-optimize --global` 分析跨项目的使用趋势。详见[工作流 M](#工作流-mmeta-optimize-aris-优化自己)。
 
 > 📝 **模板可用！** 见 [`templates/`](templates/) 目录——每个工作流都有现成输入模板：[研究简报](templates/RESEARCH_BRIEF_TEMPLATE.md)（工作流 1）、[实验计划](templates/EXPERIMENT_PLAN_TEMPLATE.md)（工作流 1.5）、[研究叙事](templates/NARRATIVE_REPORT_TEMPLATE.md)（工作流 3）、[论文大纲](templates/PAPER_PLAN_TEMPLATE.md)（工作流 3）。
 >

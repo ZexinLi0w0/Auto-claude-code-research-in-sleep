@@ -179,7 +179,7 @@ claude
 > # Then start Claude Code — hooks are active immediately
 > claude
 > ```
-> After 5+ workflow runs, run `/meta-optimize` to see data-driven improvement proposals for your skills. See [Workflow M](#workflow-m-meta-optimize--aris-optimizes-itself) for details.
+> Events are logged to **both** project-level (`.aris/meta/events.jsonl`) and global (`~/.aris/meta/events.jsonl`) logs. After 5+ workflow runs, run `/meta-optimize` to see data-driven improvement proposals. Use `/meta-optimize --global` to analyze trends across all your projects. See [Workflow M](#workflow-m-meta-optimize--aris-optimizes-itself) for details.
 
 > 📝 **Templates available!** See [`templates/`](templates/) for ready-to-use input templates for every workflow — [research brief](templates/RESEARCH_BRIEF_TEMPLATE.md) (Workflow 1), [experiment plan](templates/EXPERIMENT_PLAN_TEMPLATE.md) (Workflow 1.5), [narrative report](templates/NARRATIVE_REPORT_TEMPLATE.md) (Workflow 3), [paper plan](templates/PAPER_PLAN_TEMPLATE.md) (Workflow 3).
 >
