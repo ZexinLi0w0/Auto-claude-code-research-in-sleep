@@ -1,6 +1,6 @@
 ---
 name: paper-writing
-description: "Workflow 3: Full paper writing pipeline. Orchestrates paper-plan → paper-figure → paper-write → paper-compile → auto-paper-improvement-loop to go from a narrative report to a polished, submission-ready PDF. Use when user says \"写论文全流程\", \"write paper pipeline\", \"从报告到PDF\", \"paper writing\", or wants the complete paper generation workflow."
+description: "Workflow 3: Full paper writing pipeline. Orchestrates paper-plan → paper-figure → figure-spec/paper-illustration/mermaid-diagram → paper-write → paper-compile → auto-paper-improvement-loop to go from a narrative report to a polished, submission-ready PDF. Use when user says \"写论文全流程\", \"write paper pipeline\", \"从报告到PDF\", \"paper writing\", or wants the complete paper generation workflow."
 argument-hint: [narrative-report-path-or-topic]
 allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Agent, Skill, mcp__codex__codex, mcp__codex__codex-reply
 ---
@@ -29,8 +29,9 @@ In this hybrid pack, the pipeline itself is unchanged, but `paper-plan` and `pap
 - **REVIEWER_MODEL = `gpt-5.4`** — Model used via Codex MCP for plan review, figure review, writing review, and improvement loop.
 - **AUTO_PROCEED = true** — Auto-continue between phases. Set `false` to pause and wait for user approval after each phase.
 - **HUMAN_CHECKPOINT = false** — When `true`, the improvement loop (Phase 5) pauses after each round's review to let you see the score and provide custom modification instructions. When `false` (default), the loop runs fully autonomously. Passed through to `/auto-paper-improvement-loop`.
+- **ILLUSTRATION = `figurespec`** — Architecture/illustration generator for Phase 2b: `figurespec` (default, deterministic JSON→SVG via `/figure-spec`, best for architecture/workflow/topology), `gemini` (AI-generated via `/paper-illustration`, best for qualitative method illustrations; needs `GEMINI_API_KEY`), `mermaid` (Mermaid syntax via `/mermaid-diagram`, free, best for flowcharts), or `false` (skip Phase 2b, manual only).
 
-> Override inline: `/paper-writing "NARRATIVE_REPORT.md" — venue: NeurIPS, human checkpoint: true`
+> Override inline: `/paper-writing "NARRATIVE_REPORT.md" — venue: NeurIPS, illustration: gemini, human checkpoint: true`
 > IEEE example: `/paper-writing "NARRATIVE_REPORT.md" — venue: IEEE_JOURNAL`
 
 ## Inputs
@@ -95,13 +96,57 @@ Invoke `/paper-figure` to generate data-driven plots and tables:
 
 **Output:** `figures/` directory with PDFs, generation scripts, and LaTeX snippets.
 
-> **Scope:** Auto-generates ~60% of figures (data plots, comparison tables). Architecture diagrams, pipeline figures, and qualitative result grids must be created manually and placed in `figures/` before proceeding. See `/paper-figure` SKILL.md for details.
+> **Scope:** `paper-figure` covers data plots and comparison tables. Architecture diagrams, pipeline figures, and method illustrations are handled in Phase 2b below.
+
+#### Phase 2b: Architecture & Illustration Generation
+
+**Skip this step entirely if `illustration: false`.**
+
+If the paper plan includes architecture diagrams, pipeline figures, audit cascades, or method illustrations, invoke the appropriate generator based on the `illustration` parameter:
+
+**When `illustration: figurespec`** (default) — invoke `/figure-spec`:
+```
+/figure-spec "[architecture/workflow description from PAPER_PLAN.md]"
+```
+- Deterministic JSON → SVG vector rendering (editable, reproducible)
+- Best for: system architecture, workflow pipelines, audit cascades, layered topology
+- Output: `figures/*.svg` + `figures/*.pdf` (via rsvg-convert) + `figures/specs/*.json`
+- No external API, runs fully local
+
+**When `illustration: gemini`** — invoke `/paper-illustration`:
+```
+/paper-illustration "[method description from PAPER_PLAN.md or NARRATIVE_REPORT.md]"
+```
+- Claude plans → Gemini optimizes → Nano Banana Pro renders → Claude reviews (score ≥ 9)
+- Best for: qualitative method illustrations, natural-style diagrams, result grids
+- Output: `figures/ai_generated/*.png`
+- Requires `GEMINI_API_KEY` environment variable
+
+**When `illustration: mermaid`** — invoke `/mermaid-diagram`:
+```
+/mermaid-diagram "[method description from PAPER_PLAN.md]"
+```
+- Generates Mermaid syntax diagrams (flowchart, sequence, class, state, etc.)
+- Best for: lightweight flowcharts, state machines, simple sequence diagrams
+- Output: `figures/*.mmd` + `figures/*.png`
+- Free, no API key needed
+
+**When `illustration: false`** — skip entirely. All non-data figures must be created manually (draw.io, Figma, TikZ) and placed in `figures/` before Phase 3.
+
+**Choosing the right mode:**
+- Formal architecture / workflow / topology figures → `figurespec` (default)
+- Method concept illustrations with natural style → `gemini`
+- Quick flowchart / state machine → `mermaid`
+- Full manual control → `false`
+
+These are complementary, not mutually exclusive: you can run multiple generators for different figures in the same paper by re-invoking with different `illustration` overrides.
 
 **Checkpoint:** List generated vs manual figures.
 
 ```
 📊 Figures complete:
-- Auto-generated: [list]
+- Data plots (auto, Phase 2): [list]
+- Architecture/illustrations (auto, Phase 2b, mode=<illustration>): [list]
 - Manual (need your input): [list]
 - LaTeX snippets: figures/latex_includes.tex
 
