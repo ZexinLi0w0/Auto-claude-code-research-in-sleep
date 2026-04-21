@@ -289,6 +289,26 @@ Bridge runtime checks (carried over from `docs/CODEX_GEMINI_REVIEW_GUIDE.md`) co
 
 For Alt J specifically, the new pieces are the orchestrator script (`tools/openclaw_orchestrator.sh`) and this guide. The reviewer transport is unchanged, which is why the existing bridge validation carries over.
 
+### Alt J full W1 pipeline run (2026-04-21)
+
+The complete W1 chain (`lit-scan` → `idea-creator` → `novelty-check`) was run end-to-end against a real research brief. Driver script invoked the orchestrator three times in sequence; each stage's artifact became the input to the next stage.
+
+| Stage | Wall-clock | Artifact | Size | Reviewer model used |
+|---|---|---|---|---|
+| `lit-scan` | 27.2 min | `outputs/lit_scan.md` | 52.9 KB / 328 lines | (no reviewer call — lit-scan skill does not require one) |
+| `idea-creator` | 16.9 min | `outputs/idea_report.md` | 25.4 KB | `gemini-3.1-pro-preview` (Phase 4 critique) |
+| `novelty-check` | 17.5 min | `outputs/novelty_check.md` | 18.7 KB | `gemini-3.1-pro-preview` (Phase C cross-verification) |
+| **total** | **61.6 min** | 3 artifacts | **97.0 KB** | |
+
+Observations:
+
+- **Stage chaining works.** `novelty_check.md` opens with `Idea source: outputs/idea_report.md § 2 (top-ranked idea R1)`, which is itself the SnapEnergyBench idea written by the previous stage from `outputs/lit_scan.md`. The artifacts are linked by reference, not regenerated independently.
+- **Cross-family adversarial collab is observable in metadata.** Each downstream artifact's frontmatter records the reviewer model id, MCP job id, and thread id (e.g. `gemini-3.1-pro-preview via mcp__gemini-review__review_start (job 86ee4340..., thread 561b655b...)`), so reviewer turns are auditable after the fact.
+- **Substantive output.** `novelty_check.md` produced a 16-row prior-work comparison table (per-paper arXiv id + venue + delta), three sub-claim novelty ratings (HIGH/MEDIUM/LOW with named closest-prior), and a 9-query negative-evidence sweep. Not a checklist — a real novelty filing.
+- **Reviewer model pin is best-effort, not absolute.** Across the pipeline, 6 reviewer calls hit Gemini: 3/6 used `gemini-3.1-pro-preview` (the pinned default), and 3/6 used `gemini-2.5-pro` because some upstream skill templates hard-code `model="gemini-2.5-pro"`. The orchestrator's stage-prompt instruction nudges most calls toward the pin but cannot rewrite the skill template at call time. Production users who require strict pinning should patch the skill files (or the `skills-codex-gemini-review/` overlay) to pass through `${REVIEWER_MODEL}` instead of a literal id.
+
+Full artifacts and the driver log are kept under `~/.openclaw/workspace/memory/aris-alt-j-smoke/full-w1-pipeline/` (private workspace) for reproducibility against future runs.
+
 ### Alt J end-to-end smoke run (2026-04-21)
 
 A real one-stage run was performed against `/research-lit` with the following inputs:
