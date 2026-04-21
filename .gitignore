@@ -44,3 +44,6 @@ patent/
 
 # OMC runtime state
 .omc/
+
+# Internal AI-agent handoff scaffolding (notes/progress/result trail)
+AGENTS_HANDOFF/
