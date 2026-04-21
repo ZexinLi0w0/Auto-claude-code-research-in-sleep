@@ -142,13 +142,24 @@ claude --dangerously-skip-permissions --effort max -p "Read through this project
 /analyze-results, /monitor-experiment, /pixel-art"
 ```
 
-If you see any skill still calling the legacy reviewer MCP, install the matching overlay from `skills/skills-codex-gemini-review/` (the same overlay used by Alt I — the reviewer contract is identical):
+If you see any skill still calling the legacy reviewer MCP, install **two** overlays in this order:
 
 ```bash
+# 1. Reviewer-tool rewrites (15 skills) — same overlay used by Alt I
 cp -a skills/skills-codex-gemini-review/* ~/.claude/skills/
+
+# 2. Alt-J orchestrator patch (research-pipeline + research-lit)
+cp -a skills/skills-alt-j-claude-overlay/* ~/.claude/skills/
 ```
 
-This overlay is reviewer-only, so it composes cleanly with the upstream Claude skills that ship in `skills/`. The 15 reviewer-aware skills it covers are listed at the bottom of `docs/CODEX_GEMINI_REVIEW_GUIDE.md` ("Core 8 vs Runtime 15").
+**Why two overlays?** The upstream `skills-codex-gemini-review/` package is reviewer-tool-only and intentionally does not touch orchestrator-level skills. The verification pass on a freshly installed Alt J machine flagged two residual codex references that the reviewer overlay does not cover:
+
+- `research-pipeline/SKILL.md` — `allowed-tools` listed `mcp__codex__codex(-reply)`; Stage 4 prose said "GPT-5.4 xhigh reviews"; `nightmare` reviewer mode references `codex exec`.
+- `research-lit/SKILL.md` — `REVIEWER_BACKEND = codex` constant (dead code but misleading downstream).
+
+The `skills-alt-j-claude-overlay/` package supplies the minimal patched versions of those two files. After installing both overlays, a third verification pass should report **0 residual codex refs** across all 11 canonical skills.
+
+The 15 reviewer-aware skills covered by the first overlay are listed at the bottom of `docs/CODEX_GEMINI_REVIEW_GUIDE.md` ("Core 8 vs Runtime 15").
 
 ## OpenClaw orchestration script
 
