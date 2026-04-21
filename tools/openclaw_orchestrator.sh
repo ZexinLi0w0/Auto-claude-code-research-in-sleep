@@ -70,6 +70,8 @@ Environment (overridable, defaults shown):
   GEMINI_REVIEW_BACKEND=api    # "api" (default) or "cli"
   GEMINI_API_KEY=...           # required when backend=api (or set GOOGLE_API_KEY)
   OPENCLAW_MCP_CONFIG=<path>   # optional: passed to `claude --mcp-config`
+  OPENCLAW_CLAUDE_MODEL=claude-opus-4-7         # executor model id
+  OPENCLAW_GEMINI_MODEL=gemini-3.1-pro-preview  # reviewer model id (added to stage prompt)
 HLP
       exit 0
       ;;
@@ -106,6 +108,8 @@ export CLOUD_ML_REGION="${CLOUD_ML_REGION:-global}"
 export ANTHROPIC_VERTEX_PROJECT_ID="${ANTHROPIC_VERTEX_PROJECT_ID:-ucr-ursa-major-congliu-lab}"
 export API_TIMEOUT_MS="${API_TIMEOUT_MS:-3000000}"
 export GEMINI_REVIEW_BACKEND="${GEMINI_REVIEW_BACKEND:-api}"
+OPENCLAW_CLAUDE_MODEL="${OPENCLAW_CLAUDE_MODEL:-claude-opus-4-7}"
+OPENCLAW_GEMINI_MODEL="${OPENCLAW_GEMINI_MODEL:-gemini-3.1-pro-preview}"
 
 # Reviewer credentials must be present in the parent env so the spawned MCP
 # subprocess (gemini-review) can read them. The orchestrator does NOT source
@@ -178,7 +182,7 @@ run_stage() {
 
 $prompt_template
 
-Reasoning effort: max. Always prefer the gemini-review MCP for any reviewer turn. Write outputs to the cwd's outputs/ directory."
+Reasoning effort: max. Always prefer the gemini-review MCP for any reviewer turn. When invoking gemini-review, ALWAYS pass model=\"${OPENCLAW_GEMINI_MODEL}\" explicitly so every reviewer call uses the pinned reviewer model. Do not let the skill template default to an older model id. Write outputs to the cwd's outputs/ directory."
 
   local stage_log="$OUTPUTS_DIR/${stage_name}.log"
 
@@ -206,7 +210,7 @@ Reasoning effort: max. Always prefer the gemini-review MCP for any reviewer turn
     mcp_arg=(--mcp-config "$OPENCLAW_MCP_CONFIG")
   fi
   # Bash 3.2 compat: ${arr[@]} on empty array trips `set -u`. Expand only if non-empty.
-  if claude ${mcp_arg[@]+"${mcp_arg[@]}"} --dangerously-skip-permissions --effort max -p "$full_prompt" >"$stage_log" 2>&1; then
+  if claude ${mcp_arg[@]+"${mcp_arg[@]}"} --model "$OPENCLAW_CLAUDE_MODEL" --dangerously-skip-permissions --effort max -p "$full_prompt" >"$stage_log" 2>&1; then
     if [[ -f "$artifact" ]]; then
       log_event "$stage_name" "OK" "artifact present: $artifact"
       echo "==> [$stage_name] done. artifact: $artifact"
@@ -232,7 +236,8 @@ echo "  outputs   : $OUTPUTS_DIR"
 echo "  dry-run   : $DRY_RUN"
 echo "  only      : ${ONLY_STAGE:-<all stages>}"
 echo "  vertex    : project=$GOOGLE_CLOUD_PROJECT region=$CLOUD_ML_REGION"
-echo "  reviewer  : gemini-review MCP backend=$GEMINI_REVIEW_BACKEND"
+echo "  reviewer  : gemini-review MCP backend=$GEMINI_REVIEW_BACKEND model=$OPENCLAW_GEMINI_MODEL"
+echo "  executor  : claude model=$OPENCLAW_CLAUDE_MODEL"
 echo
 
 log_event "pipeline" "START" "direction=${DIRECTION:-<brief>} brief=${BRIEF_PATH:-<none>} dry_run=$DRY_RUN only=${ONLY_STAGE:-all}"

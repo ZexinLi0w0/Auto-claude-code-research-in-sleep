@@ -54,25 +54,29 @@ Then register it with Claude Code at **user scope** so every project sees it:
 claude mcp add gemini-review \
   --scope user \
   -e GEMINI_REVIEW_BACKEND=api \
-  -e GEMINI_REVIEW_API_MODEL=gemini-2.5-flash \
+  -e GEMINI_REVIEW_API_MODEL=gemini-3.1-pro-preview \
+  -e GEMINI_REVIEW_MODEL=gemini-3.1-pro-preview \
   -e GEMINI_BIN=gemini \
-  -e GEMINI_REVIEW_TIMEOUT_SEC=600 \
+  -e GEMINI_REVIEW_TIMEOUT_SEC=900 \
   -e GEMINI_REVIEW_STATE_DIR=$HOME/.claude/state/gemini-review \
   -- python3 $HOME/.claude/mcp-servers/gemini-review/server.py
 
 claude mcp list   # expect: gemini-review ... ✓ Connected
 ```
 
+> **Reviewer model pin.** The bridge defaults to `gemini-2.5-flash` if no `GEMINI_REVIEW_API_MODEL` is set, which is fine for sanity checks but underpowered for substantive review. Alt J's smoke runs use `gemini-3.1-pro-preview` (the latest Gemini 3.1 Pro Preview), and the orchestrator script also passes `model="gemini-3.1-pro-preview"` in every reviewer-turn prompt so individual skills cannot accidentally fall back to an older model id.
+
 > ⚠️ **Do not** put `mcpServers` into `~/.claude/settings.json`. The Claude Code CLI reads MCP registrations from `~/.claude.json` (managed via `claude mcp add`), not from `settings.json`. The `mcpServers` block in `settings.json` is silently ignored — we verified this during the Alt J smoke run, where a `settings.json`-only registration failed `claude mcp list` until we re-registered via the CLI.
 
 The `GEMINI_REVIEW_STATE_DIR` override is important: the bridge defaults to `~/.codex/state/gemini-review`, which is fine for Codex but pollutes the wrong directory for a Claude-driven install.
 
-### 3. Register Vertex env in `~/.claude/settings.json`
+### 3. Register Vertex env + executor model pin in `~/.claude/settings.json`
 
 Merge the following into `~/.claude/settings.json` (preserve any existing keys):
 
 ```json
 {
+  "model": "claude-opus-4-7",
   "env": {
     "CLAUDE_CODE_USE_VERTEX": "1",
     "GOOGLE_CLOUD_PROJECT": "ucr-ursa-major-congliu-lab",
@@ -82,6 +86,8 @@ Merge the following into `~/.claude/settings.json` (preserve any existing keys):
   }
 }
 ```
+
+> **Executor model pin.** Setting `model: "claude-opus-4-7"` (rather than the alias `"opus"`) prevents accidental drift to a different opus version. The orchestrator script also passes `--model claude-opus-4-7` explicitly on every stage invocation as a defense-in-depth measure.
 
 ### 4. Provide the Gemini API key to the MCP subprocess
 
