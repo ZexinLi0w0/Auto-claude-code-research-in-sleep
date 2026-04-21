@@ -205,7 +205,8 @@ Reasoning effort: max. Always prefer the gemini-review MCP for any reviewer turn
     fi
     mcp_arg=(--mcp-config "$OPENCLAW_MCP_CONFIG")
   fi
-  if claude "${mcp_arg[@]}" --dangerously-skip-permissions --effort max -p "$full_prompt" >"$stage_log" 2>&1; then
+  # Bash 3.2 compat: ${arr[@]} on empty array trips `set -u`. Expand only if non-empty.
+  if claude ${mcp_arg[@]+"${mcp_arg[@]}"} --dangerously-skip-permissions --effort max -p "$full_prompt" >"$stage_log" 2>&1; then
     if [[ -f "$artifact" ]]; then
       log_event "$stage_name" "OK" "artifact present: $artifact"
       echo "==> [$stage_name] done. artifact: $artifact"
