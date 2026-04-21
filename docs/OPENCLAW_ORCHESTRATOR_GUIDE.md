@@ -41,14 +41,35 @@ cp -r skills/* ~/.claude/skills/
 
 ### 2. Install the gemini-review MCP bridge
 
+Copy the bridge into a stable location:
+
 ```bash
 mkdir -p ~/.claude/mcp-servers/gemini-review
 cp mcp-servers/gemini-review/server.py ~/.claude/mcp-servers/gemini-review/
 ```
 
-### 3. Register Vertex env + MCP in `~/.claude/settings.json`
+Then register it with Claude Code at **user scope** so every project sees it:
 
-Merge the following into `~/.claude/settings.json` (replace `<HOME>` with the absolute home path — Claude Code does not expand `~` inside JSON):
+```bash
+claude mcp add gemini-review \
+  --scope user \
+  -e GEMINI_REVIEW_BACKEND=api \
+  -e GEMINI_REVIEW_API_MODEL=gemini-2.5-flash \
+  -e GEMINI_BIN=gemini \
+  -e GEMINI_REVIEW_TIMEOUT_SEC=600 \
+  -e GEMINI_REVIEW_STATE_DIR=$HOME/.claude/state/gemini-review \
+  -- python3 $HOME/.claude/mcp-servers/gemini-review/server.py
+
+claude mcp list   # expect: gemini-review ... ✓ Connected
+```
+
+> ⚠️ **Do not** put `mcpServers` into `~/.claude/settings.json`. The Claude Code CLI reads MCP registrations from `~/.claude.json` (managed via `claude mcp add`), not from `settings.json`. The `mcpServers` block in `settings.json` is silently ignored — we verified this during the Alt J smoke run, where a `settings.json`-only registration failed `claude mcp list` until we re-registered via the CLI.
+
+The `GEMINI_REVIEW_STATE_DIR` override is important: the bridge defaults to `~/.codex/state/gemini-review`, which is fine for Codex but pollutes the wrong directory for a Claude-driven install.
+
+### 3. Register Vertex env in `~/.claude/settings.json`
+
+Merge the following into `~/.claude/settings.json` (preserve any existing keys):
 
 ```json
 {
@@ -58,32 +79,23 @@ Merge the following into `~/.claude/settings.json` (replace `<HOME>` with the ab
     "CLOUD_ML_REGION": "global",
     "ANTHROPIC_VERTEX_PROJECT_ID": "ucr-ursa-major-congliu-lab",
     "API_TIMEOUT_MS": "3000000"
-  },
-  "mcpServers": {
-    "gemini-review": {
-      "command": "python3",
-      "args": ["<HOME>/.claude/mcp-servers/gemini-review/server.py"],
-      "env": {
-        "GEMINI_REVIEW_BACKEND": "cli",
-        "GEMINI_BIN": "gemini",
-        "GEMINI_REVIEW_TIMEOUT_SEC": "600",
-        "GEMINI_REVIEW_STATE_DIR": "<HOME>/.claude/state/gemini-review"
-      }
-    }
   }
 }
 ```
 
-The `GEMINI_REVIEW_STATE_DIR` override is important: the bridge defaults to `~/.codex/state/gemini-review`, which is fine for Codex but pollutes the wrong directory for a Claude-driven install.
+### 4. Provide the Gemini API key to the MCP subprocess
 
-### 4. Verify Gemini CLI is on PATH and authed
+The bridge auto-loads `~/.gemini/.env` when neither `GEMINI_API_KEY` nor `GOOGLE_API_KEY` is in the MCP subprocess environment. Because the MCP runs as a non-interactive `python3` child of `claude`, it does **not** see anything you `export` only in `~/.zshrc`. Put the key in `~/.gemini/.env` instead:
 
 ```bash
-which gemini
-gemini -p "Reply with exactly READY" --output-format json
+mkdir -p ~/.gemini
+cat > ~/.gemini/.env <<EOF
+GEMINI_API_KEY="your-key-here"
+EOF
+chmod 600 ~/.gemini/.env
 ```
 
-If the CLI prompts for first-time login, complete it. Alternatively set `GEMINI_API_KEY` in your shell or in `~/.gemini/.env`; the bridge auto-loads that file.
+Get a key from <https://aistudio.google.com/apikey>. Free-tier `gemini-2.5-flash` is sufficient for reviewer turns.
 
 ### 5. (Optional) Verify Vertex auth
 
@@ -98,7 +110,28 @@ Confirm the env vars from step 3 are visible to a child process:
 claude --dangerously-skip-permissions -p "Print the current value of the env var CLAUDE_CODE_USE_VERTEX. Reply with only the value."
 ```
 
-### 6. (Important) One-shot skill verification pass
+### 5. (Sanity) Verify the bridge end-to-end
+
+```bash
+claude --dangerously-skip-permissions -p "Use the gemini-review MCP tool 'review' with prompt='Reply with exactly: BRIDGE_OK_FROM_GEMINI'. Then print Gemini's response verbatim and stop."
+```
+
+Expect Claude to invoke the MCP tool and print `BRIDGE_OK_FROM_GEMINI` in its final message. If you see `GEMINI_API_KEY / GOOGLE_API_KEY is not set`, the bridge could not find your key — confirm `~/.gemini/.env` exists and is readable.
+
+### 6. (Optional) Verify Vertex auth
+
+```bash
+gcloud auth application-default login
+gcloud auth application-default set-quota-project "ucr-ursa-major-congliu-lab"
+```
+
+Confirm the env vars from step 3 reach a child process:
+
+```bash
+claude --dangerously-skip-permissions -p "Print the current value of the env var CLAUDE_CODE_USE_VERTEX. Reply with only the value."
+```
+
+### 7. (Important) One-shot skill verification pass
 
 Even though Claude is the executor (so per the upstream README the executor itself parses skills correctly), Alt J **swaps the reviewer transport** from the default `mcp__codex__codex` to `mcp__gemini-review__review*`. Some skills hard-reference the Codex MCP tool name; on first use you should let Claude scan the skill set once so it picks up the new tool wiring:
 
