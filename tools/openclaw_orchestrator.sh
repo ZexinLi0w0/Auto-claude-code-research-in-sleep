@@ -67,7 +67,9 @@ Environment (overridable, defaults shown):
   CLOUD_ML_REGION=global
   ANTHROPIC_VERTEX_PROJECT_ID=ucr-ursa-major-congliu-lab
   API_TIMEOUT_MS=3000000
-  GEMINI_REVIEW_BACKEND=cli
+  GEMINI_REVIEW_BACKEND=api    # "api" (default) or "cli"
+  GEMINI_API_KEY=...           # required when backend=api (or set GOOGLE_API_KEY)
+  OPENCLAW_MCP_CONFIG=<path>   # optional: passed to `claude --mcp-config`
 HLP
       exit 0
       ;;
@@ -103,7 +105,25 @@ export GOOGLE_CLOUD_PROJECT="${GOOGLE_CLOUD_PROJECT:-ucr-ursa-major-congliu-lab}
 export CLOUD_ML_REGION="${CLOUD_ML_REGION:-global}"
 export ANTHROPIC_VERTEX_PROJECT_ID="${ANTHROPIC_VERTEX_PROJECT_ID:-ucr-ursa-major-congliu-lab}"
 export API_TIMEOUT_MS="${API_TIMEOUT_MS:-3000000}"
-export GEMINI_REVIEW_BACKEND="${GEMINI_REVIEW_BACKEND:-cli}"
+export GEMINI_REVIEW_BACKEND="${GEMINI_REVIEW_BACKEND:-api}"
+
+# Reviewer credentials must be present in the parent env so the spawned MCP
+# subprocess (gemini-review) can read them. The orchestrator does NOT source
+# ~/.zshrc (see note above), so the user is responsible for exporting one of
+# GEMINI_API_KEY or GOOGLE_API_KEY before invoking this script. We also
+# auto-load ~/.gemini/.env if present (the bridge supports this directly, but
+# loading it here surfaces problems earlier).
+if [[ -z "${GEMINI_API_KEY:-}" && -z "${GOOGLE_API_KEY:-}" ]]; then
+  if [[ -f "$HOME/.gemini/.env" ]]; then
+    # shellcheck disable=SC1091
+    set -a; source "$HOME/.gemini/.env"; set +a
+  fi
+fi
+if [[ "$GEMINI_REVIEW_BACKEND" == "api" ]] && [[ -z "${GEMINI_API_KEY:-}" && -z "${GOOGLE_API_KEY:-}" ]]; then
+  echo "WARNING: GEMINI_REVIEW_BACKEND=api but neither GEMINI_API_KEY nor GOOGLE_API_KEY is exported." >&2
+  echo "         Reviewer turns will fail. Export the key in the parent shell, or unset GEMINI_REVIEW_BACKEND" >&2
+  echo "         to fall back to the CLI backend (see docs/OPENCLAW_ORCHESTRATOR_GUIDE.md troubleshooting)." >&2
+fi
 
 # --- workspace ---
 WORKDIR="$(pwd)"
@@ -176,7 +196,16 @@ Reasoning effort: max. Always prefer the gemini-review MCP for any reviewer turn
   echo "==> [$stage_name] starting at $(ts)"
 
   local rc=0
-  if claude --dangerously-skip-permissions --effort max -p "$full_prompt" >"$stage_log" 2>&1; then
+  local mcp_arg=()
+  if [[ -n "${OPENCLAW_MCP_CONFIG:-}" ]]; then
+    if [[ ! -f "$OPENCLAW_MCP_CONFIG" ]]; then
+      log_event "$stage_name" "FAIL" "OPENCLAW_MCP_CONFIG not found: $OPENCLAW_MCP_CONFIG"
+      echo "ERROR: OPENCLAW_MCP_CONFIG points to missing file: $OPENCLAW_MCP_CONFIG" >&2
+      return 2
+    fi
+    mcp_arg=(--mcp-config "$OPENCLAW_MCP_CONFIG")
+  fi
+  if claude "${mcp_arg[@]}" --dangerously-skip-permissions --effort max -p "$full_prompt" >"$stage_log" 2>&1; then
     if [[ -f "$artifact" ]]; then
       log_event "$stage_name" "OK" "artifact present: $artifact"
       echo "==> [$stage_name] done. artifact: $artifact"

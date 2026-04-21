@@ -239,6 +239,23 @@ Bridge runtime checks (carried over from `docs/CODEX_GEMINI_REVIEW_GUIDE.md`) co
 
 For Alt J specifically, the new pieces are the orchestrator script (`tools/openclaw_orchestrator.sh`) and this guide. The reviewer transport is unchanged, which is why the existing bridge validation carries over.
 
+### Alt J end-to-end smoke run (2026-04-21)
+
+A real one-stage run was performed against `/research-lit` with the following inputs:
+
+- Brief: a 4-line `RESEARCH_BRIEF.md` on “energy-efficient on-device LLM inference for mobile NPUs (≤8B params, ARM/Hexagon, IEEE workshop)”.
+- Command: `OPENCLAW_MCP_CONFIG=/tmp/aris-alt-j-smoke/mcp-config.json bash tools/openclaw_orchestrator.sh --brief /tmp/aris-alt-j-smoke/RESEARCH_BRIEF.md --only lit-scan`.
+- Backend: Vertex (`anthropic-vertex/claude-opus-4-7` via `--effort max`) executor; `gemini-review` MCP registered with `backend=api`, model `gemini-2.5-flash`.
+
+Result:
+
+- Executor produced a 29 KB structured `outputs/lit_scan.md` with sectioned themes (mobile-NPU systems, low-bit kernels, KV/memory hierarchy, energy/measurement methodology), per-paper arXiv IDs and venues, gap analysis, and IEEE workshop venue list. Wall-clock to artifact: ~18 min for the literature stage at `--effort max`.
+- After writing the artifact the executor proactively launched a `gemini-review` reviewer turn on its own scan (good behavior).
+- The reviewer call exposed an env-propagation gap: the spawned `python3` MCP subprocess did not inherit `GEMINI_API_KEY` from the user's interactive shell, so the API backend returned `"Gemini API backend requires GEMINI_API_KEY or GOOGLE_API_KEY"`. The orchestrator now warns up-front when `backend=api` is selected without a key in the parent env, and auto-loads `~/.gemini/.env` when present.
+- The CLI backend (`backend=cli`) hit the same upstream Gemini CLI recursion-warning issue documented above.
+
+Takeaway: the **executor path is fully validated end-to-end** (Vertex + Claude + skill + artifact). The **reviewer path is validated at the bridge level** (sync `review` round-trip succeeded earlier in the same session) but requires the user to export `GEMINI_API_KEY` (or `GOOGLE_API_KEY`) in the parent shell before invoking the orchestrator. The script now surfaces this prerequisite explicitly.
+
 ## Maintenance
 
 - Keep `tools/openclaw_orchestrator.sh` thin — stage prompts only, no business logic.
